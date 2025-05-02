@@ -15,9 +15,8 @@ function addItem(e) {
     alert('Please add an item');
     return;
   }
-  addingItemToDOM();
   // Create list item
-  addItemToLocalStorage(newItem);
+  addItemToLocalStorage(newItem , addingItemToDOM);
   
   itemInput.value = '';
   checkUI();
@@ -40,7 +39,8 @@ function addingItemToDOM() {
   }
 }
 
-function addItemToLocalStorage(item) {
+function addItemToLocalStorage(item , cb) {
+  cb();
   let itemsFromStorage;
   if (localStorage.getItem('items') === null) {
     itemsFromStorage = [];
