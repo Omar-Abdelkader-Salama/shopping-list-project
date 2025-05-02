@@ -15,9 +15,10 @@ function addItem(e) {
     alert('Please add an item');
     return;
   }
+  addingItemToDOM();
   // Create list item
   addItemToLocalStorage(newItem);
-  addingItemToDOM();
+  
   itemInput.value = '';
   checkUI();
 }
@@ -50,21 +51,20 @@ function addItemToLocalStorage(item) {
     if (itemStorage === item) {
       itemAlreadyExists = true;
       if (confirm(`${item} is already found , do you want to edit it ?`)) {
-        let editedItem ;
-        itemList.querySelectorAll('li').forEach(itemDOM => {
-          if(itemDOM.textContent === itemStorage){
-            editedItem = itemDOM ;
-          }
-        })
-        editMode(editedItem);
+        let editedItem = Array.from(itemList.querySelectorAll('li')).find(
+          (item) => item.textContent === itemStorage
+        );
+
+        editedItem.click();
+
       } else {
         itemInput.value = '';
       }
+    }else{
+      itemsFromStorage.push(item);
     }
   });
-  if (!itemAlreadyExists) {
-    itemsFromStorage.push(item);
-  }
+
   localStorage.setItem('items', JSON.stringify(itemsFromStorage));
 }
 
@@ -100,13 +100,14 @@ function onClickItem(e) {
     }
   } else {
     if (e.target.tagName === 'LI') {
-      console.log(e.target);
+      editMode(e.target);
     }
   }
   checkUI();
 }
 
 function editMode(listItem) {
+
   itemForm.querySelectorAll('button').forEach((e) => {
     if (e.classList.contains('exit-editMode')) {
       e.remove();
@@ -120,6 +121,9 @@ function editMode(listItem) {
   formBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Item';
   formBtn.classList.add('update');
   itemForm.removeEventListener('submit', addItem);
+  console.log(listItem);
+  console.log(listItem.textContent);
+  console.log(document.body.contains(listItem));
   itemInput.value = listItem.textContent;
   const button = createButton('exit-editMode btn');
   button.appendChild(document.createTextNode('Exit Edit Mode'));
@@ -129,11 +133,12 @@ function editMode(listItem) {
     formBtn.classList.remove('update');
     formBtn.innerHTML = ' <i class="fa-solid fa-plus"></i> Add Item';
     listItem.classList.remove('edit-mode');
-    itemForm.addEventListener('submit', addItem);
     itemInput.value = '';
     isEditMode = false;
+    itemForm.addEventListener('submit', addItem);
+    itemForm.removeEventListener('submit', updateItem);
   });
-  itemForm.addEventListener('submit', (e) => {
+  function updateItem(e){
     e.preventDefault();
     let itemsFromStorage = JSON.parse(localStorage.getItem('items'));
     const updatedItem = document.querySelector('.edit-mode').textContent;
@@ -146,9 +151,12 @@ function editMode(listItem) {
     formBtn.classList.remove('update');
     formBtn.innerHTML = ' <i class="fa-solid fa-plus"></i> Add Item';
     listItem.classList.remove('edit-mode');
-    itemForm.addEventListener('submit', addItem);
     isEditMode = false;
-  });
+    itemForm.addEventListener('submit', addItem);
+    itemForm.removeEventListener('submit', updateItem);
+  }
+  itemForm.addEventListener('submit', updateItem);
+  
 }
 
 function clearAll(e) {
