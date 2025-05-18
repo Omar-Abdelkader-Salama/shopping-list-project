@@ -1,4 +1,4 @@
-# Shopping List
+# Shopping List Project
 
 Vanilla JavaScript shopping list app from my Modern JS From The Beginning course.
 
